@@ -5,11 +5,14 @@ const path = require('path');
 
 const rl = readline.createInterface({ input, output });
 
+fs.writeFile(path.resolve(__dirname, 'text.txt'), ``, (err) => {
+	if (err) console.log(err);
+});
+
 rl.question('Enter your text: \n', (answer) => {
-	fs.writeFile(path.resolve(__dirname, 'text.txt'), `${answer}\n`, (err) => {
+	fs.appendFile(path.resolve(__dirname, 'text.txt'), answer + '\n', (err) => {
 		if (err) console.log(err);
 	});
-
 	rl.on('line', (line) => {
 		if (line === 'exit') {
 			console.log('\nThank you! Goodbye!');
