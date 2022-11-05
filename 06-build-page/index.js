@@ -10,9 +10,7 @@ const templatePath = path.resolve(__dirname, 'template.html');
 
 const copyDir = async (src, dist) => {
 	const files = await fs.promises.readdir(src, { withFileTypes: true });
-	await fs.promises.mkdir(dist, { recursive: true }, (err) => {
-		if (err) throw err;
-	});
+	await fs.promises.mkdir(dist, { recursive: true });
 	for (let file of files) {
 		const srcPath = path.join(src, file.name);
 		const distPath = path.join(dist, file.name);
@@ -44,9 +42,7 @@ const bundleHtml = async (src, dist) => {
 	const components = await fs.promises.readdir(src, { withFileTypes: true });
 	let htmlString = await fs.promises.readFile(templatePath, 'utf-8');
 
-	await fs.promises.writeFile(dist, '', (err) => {
-		if (err) throw err;
-	});
+	await fs.promises.writeFile(dist, '');
 	for (let component of components) {
 		const pathToComponent = path.join(src, component.name);
 		const componentExt = path.extname(pathToComponent);
@@ -62,9 +58,7 @@ const bundleHtml = async (src, dist) => {
 			);
 		}
 	}
-	await fs.promises.writeFile(dist, htmlString, (err) => {
-		if (err) throw err;
-	});
+	await fs.promises.writeFile(dist, htmlString);
 };
 
 (async () => {
