@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { bundleCss } = require('../05-merge-styles');
+const { pipeline } = require('stream/promises');
 
 const styles = path.resolve(__dirname, 'styles');
 const distPath = path.resolve(__dirname, 'project-dist');
@@ -20,6 +20,22 @@ const copyDir = async (src, dist) => {
 			await copyDir(srcPath, distPath);
 		} else {
 			await fs.promises.copyFile(srcPath, distPath);
+		}
+	}
+};
+
+const bundleCss = async (src, dist, distFile) => {
+	await fs.promises.writeFile(path.join(dist, distFile), ``);
+	const files = await fs.promises.readdir(src, { withFileTypes: true });
+	for (let file of files) {
+		if (file.isFile() && path.extname(file.name) === '.css') {
+			await pipeline(
+				fs.createReadStream(path.join(src, file.name), 'utf-8'),
+				fs.createWriteStream(path.join(dist, distFile), {
+					encoding: 'utf-8',
+					flags: 'a'
+				})
+			);
 		}
 	}
 };

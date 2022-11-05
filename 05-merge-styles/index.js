@@ -22,5 +22,3 @@ const bundleCss = async (src, dist, distFile) => {
 };
 
 bundleCss(srcPath, distPath, 'bundle.css');
-
-exports.bundleCss = bundleCss;
