@@ -25,8 +25,6 @@ const copyDir = async (src, dist) => {
 };
 
 const bundleHtml = async (src, dist) => {
-	let output = '';
-
 	const components = await fs.promises.readdir(src, { withFileTypes: true });
 	let htmlString = await fs.promises.readFile(templatePath, 'utf-8');
 
@@ -37,9 +35,7 @@ const bundleHtml = async (src, dist) => {
 		const pathToComponent = path.join(src, component.name);
 		const componentExt = path.extname(pathToComponent);
 		if (componentExt === '.html' && component.isFile()) {
-			const componentName = component.name.split('.')[0];
-			// path.basename
-
+			const componentName = path.basename(pathToComponent, componentExt);
 			const componentContent = await fs.promises.readFile(
 				pathToComponent,
 				'utf-8'
