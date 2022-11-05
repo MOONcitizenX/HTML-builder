@@ -11,9 +11,12 @@ const copyDir = () => {
 		if (err) throw err;
 		for (let file of files) {
 			if (file.isFile()) {
-				fs.promises.copyFile(
+				fs.copyFile(
 					path.join(origPath, file.name),
-					path.join(distPath, file.name)
+					path.join(distPath, file.name),
+					(err) => {
+						if (err) throw err;
+					}
 				);
 			}
 		}

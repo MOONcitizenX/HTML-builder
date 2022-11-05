@@ -5,9 +5,11 @@ const path = require('path');
 
 const rl = readline.createInterface({ input, output });
 
-fs.writeFile(path.resolve(__dirname, 'text.txt'), ``, (err) => {
-	if (err) console.log(err);
-});
+// fs.writeFile(path.resolve(__dirname, 'text.txt'), ``, (err) => {
+// 	if (err) console.log(err);
+// });
+
+// writeableStream
 
 rl.question('Enter your text: \n', (answer) => {
 	fs.appendFile(path.resolve(__dirname, 'text.txt'), answer + '\n', (err) => {

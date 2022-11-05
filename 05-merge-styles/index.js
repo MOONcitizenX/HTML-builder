@@ -1,32 +1,26 @@
 const fs = require('fs');
 const path = require('path');
+const { pipeline } = require('stream/promises');
 
-const bundleCss = () => {
-	const distPath = path.resolve(__dirname, 'project-dist');
-	const srcPath = path.resolve(__dirname, 'styles');
-	fs.writeFile(path.join(distPath, 'bundle.css'), ``, (err) => {
-		if (err) console.log(err);
-	});
-	fs.readdir(srcPath, { withFileTypes: true }, (err, files) => {
-		if (err) throw err;
-		for (let file of files) {
-			if (file.isFile() && path.extname(file.name) === '.css') {
-				const style = fs.createReadStream(
-					path.join(srcPath, file.name),
-					'utf-8'
-				);
-				style.on('data', (chunk) => {
-					fs.appendFile(
-						path.join(distPath, 'bundle.css'),
-						chunk,
-						(err) => {
-							if (err) throw err;
-						}
-					);
-				});
-			}
+const distPath = path.resolve(__dirname, 'project-dist');
+const srcPath = path.resolve(__dirname, 'styles');
+
+const bundleCss = async (src, dist, distFile) => {
+	await fs.promises.writeFile(path.join(dist, distFile), ``);
+	const files = await fs.promises.readdir(src, { withFileTypes: true });
+	for (let file of files) {
+		if (file.isFile() && path.extname(file.name) === '.css') {
+			await pipeline(
+				fs.createReadStream(path.join(src, file.name), 'utf-8'),
+				fs.createWriteStream(path.join(dist, distFile), {
+					encoding: 'utf-8',
+					flags: 'a'
+				})
+			);
 		}
-	});
+	}
 };
 
-bundleCss();
+bundleCss(srcPath, distPath, 'bundle.css');
+
+exports.bundleCss = bundleCss;

@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const { bundleCss } = require('../05-merge-styles');
 
+const styles = path.resolve(__dirname, 'styles');
 const distPath = path.resolve(__dirname, 'project-dist');
 const assetsPath = path.resolve(__dirname, 'assets');
 const htmlPath = path.resolve(__dirname, 'components');
@@ -8,7 +10,7 @@ const templatePath = path.resolve(__dirname, 'template.html');
 
 const copyDir = async (src, dist) => {
 	const files = await fs.promises.readdir(src, { withFileTypes: true });
-	fs.mkdir(dist, { recursive: true }, (err) => {
+	await fs.promises.mkdir(dist, { recursive: true }, (err) => {
 		if (err) throw err;
 	});
 	for (let file of files) {
@@ -22,41 +24,13 @@ const copyDir = async (src, dist) => {
 	}
 };
 
-const bundleCss = async () => {
-	const distPath = path.resolve(__dirname, 'project-dist');
-	const srcPath = path.resolve(__dirname, 'styles');
-	await fs.writeFile(path.join(distPath, 'style.css'), ``, (err) => {
-		if (err) console.log(err);
-	});
-	await fs.readdir(srcPath, { withFileTypes: true }, (err, files) => {
-		if (err) throw err;
-		for (let file of files) {
-			if (file.isFile() && path.extname(file.name) === '.css') {
-				const style = fs.createReadStream(
-					path.join(srcPath, file.name),
-					'utf-8'
-				);
-				style.on('data', (chunk) => {
-					fs.appendFile(
-						path.join(distPath, 'style.css'),
-						chunk,
-						(err) => {
-							if (err) throw err;
-						}
-					);
-				});
-			}
-		}
-	});
-};
-
 const bundleHtml = async (src, dist) => {
 	let output = '';
 
 	const components = await fs.promises.readdir(src, { withFileTypes: true });
-	let stream = await fs.promises.readFile(templatePath, 'utf-8');
+	let htmlString = await fs.promises.readFile(templatePath, 'utf-8');
 
-	fs.promises.writeFile(dist, '', (err) => {
+	await fs.promises.writeFile(dist, '', (err) => {
 		if (err) throw err;
 	});
 	for (let component of components) {
@@ -64,27 +38,27 @@ const bundleHtml = async (src, dist) => {
 		const componentExt = path.extname(pathToComponent);
 		if (componentExt === '.html' && component.isFile()) {
 			const componentName = component.name.split('.')[0];
+			// path.basename
 
-			const streamComponent = await fs.promises.readFile(
+			const componentContent = await fs.promises.readFile(
 				pathToComponent,
 				'utf-8'
 			);
-			stream = stream.replaceAll(`{{${componentName}}}`, streamComponent);
-			console.log(stream);
+			htmlString = htmlString.replaceAll(
+				`{{${componentName}}}`,
+				componentContent
+			);
 		}
 	}
-	// const htmlStream = fs.createWriteStream(dist);
-	fs.promises.writeFile(dist, stream, (err) => {
+	await fs.promises.writeFile(dist, htmlString, (err) => {
 		if (err) throw err;
 	});
-	// htmlStream.write(stream);
 };
 
 (async () => {
-	fs.mkdir(distPath, { recursive: true }, (err) => {
-		if (err) throw err;
-	});
+	await fs.promises.rm(distPath, { recursive: true, force: true });
+	await fs.promises.mkdir(distPath, { recursive: true });
 	await copyDir(assetsPath, path.join(distPath, 'assets'));
-	await bundleCss();
+	await bundleCss(styles, distPath, 'style.css');
 	await bundleHtml(htmlPath, path.join(distPath, 'index.html'));
 })();

@@ -13,11 +13,11 @@ readdir(
 			fs.stat(path2file, (err, stats) => {
 				if (err) throw err;
 				console.log(
+					// path filename
+
 					`${file.name.split('.').slice(0, -1).join('')} - ${path
 						.extname(path2file)
-						.split('')
-						.slice(1)
-						.join('')} - ${(stats.size / 1000).toFixed(2)} kB`
+						.slice(1)} - ${(stats.size / 1000).toFixed(2)} kB`
 				);
 			});
 		});
