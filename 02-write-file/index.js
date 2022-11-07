@@ -9,7 +9,13 @@ const rl = readline.createInterface({ input, output });
 const fileStream = fs.createWriteStream(distPath);
 
 rl.question('Enter your text: \n', (answer) => {
-	fileStream.write(`${answer}\n`);
+	if (answer === 'exit') {
+		console.log('\nThank you! Goodbye!');
+		process.exit();
+	} else {
+		fileStream.write(`${answer}\n`);
+	}
+
 	rl.on('line', (line) => {
 		if (line === 'exit') {
 			console.log('\nThank you! Goodbye!');
